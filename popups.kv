@@ -1,0 +1,108 @@
+#:kivy 1.11.1
+<ModbusPopup>
+    title: "Configurações MODBUS"
+    size_hint_y: None
+    size_hint_x: 0.4
+    height: 200
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            rows: 2
+            Label:
+                text: 'IP'
+                font_size: 14
+            TextInput:
+                id: txt_ip
+                text: "127.0.0.1"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Porta'
+                font_size: 14
+            TextInput:
+                id: txt_porta
+                text: "502"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                height: 40
+                text: 'Conectar'
+                on_release:
+                    root.clearInfo()
+                    app.root.startDataRead(txt_ip.text, txt_porta.text)
+            Button:
+                size_hint_y: None
+                height: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()
+                    root.clearInfo()
+
+<ConfigPopup>
+    title: "Configurações"
+    size_hint_y: None
+    size_hint_x: 0.5
+    height: 400
+    BoxLayout:
+        id: layout
+        orientation: 'vertical'
+        GridLayout:
+            cols: 2
+            rows: 6
+            Label:
+                text: 'Velocidade da Rampa [ms]'
+                font_size: 14
+            TextInput:
+                id: vel_ramp
+                text: "1000"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Filtro Esteira1'
+                font_size: 14
+            TextInput:
+                id: f_est1
+                text: "Filtro"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Filtro Esteira2'
+                font_size: 14
+            TextInput:
+                id: f_est2
+                text: "Filtro"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+            Label:
+                text: 'Filtro Esteira3'
+                font_size: 14
+            TextInput:
+                id: f_est3
+                text: "Filtro"
+                font_size: 14
+                halign: 'center'
+                valign: 'middle'
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                size_hint_y: None
+                height: 40
+                text: 'Alterar Configurações'
+                on_release:
+                    app.root._velramp = int(vel_ramp.text)
+            Button:
+                size_hint_y: None
+                height: 40
+                text: 'Fechar'
+                on_release:
+                    root.dismiss()

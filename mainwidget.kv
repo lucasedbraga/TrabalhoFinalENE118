@@ -6,8 +6,8 @@
         orientation: 'vertical'
         MDToolbar:
             title: " Software SCADA: Classificador Industrial"
-            left_action_items: [["connection",lambda x: app.menu_button(x), "Conectar"]]
-            right_action_items: [["cog", lambda x: app.clock_button(x), "Configurações"]]
+            left_action_items: [["connection",lambda x: app.root.conect_button(x), "Conectar"]]
+            right_action_items: [["cog", lambda x: app.root.config_button(x), "Configurações"]]
 
         MDBottomNavigation:
             panel_color: app.theme_cls.primary_color
@@ -46,7 +46,7 @@
                         MDBoxLayout:
                             orientation: 'horizontal'
                             MDLabel:
-                                text: 'Parametro2: Valor '
+                                text: 'Vel.Rampa: vel_ramp.text  '
                                 text_color: 0,0,0,1
                                 bold: True
                                 halign: 'left'
@@ -82,13 +82,21 @@
                             pos_hint: {'center_x':0.5, 'center_y':0.5}
                             size_hint: (1,1)
                         Label:
+                            id: tabela_atual
+                            text: 'Item Atual'
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':0.3,'y':0.4}
+                        Label:
                             id: info_cor
                             text: 'Nenhuma Cor'
                             color: 0,0,0,1
                             font_size: 20
                             bold: True
                             halign: 'left'
-                            pos_hint: {'x':0.3,'y':0.4}
+                            pos_hint: {'x':0.3,'y':0.3}
                         Label:
                             id: info_peso
                             text: '--.-- Kg'
@@ -96,7 +104,62 @@
                             font_size: 20
                             bold: True
                             halign: 'left'
-                            pos_hint: {'x':0.3,'y':0.3}
+                            pos_hint: {'x':0.3,'y':0.2}
+                        Label:
+                            id: tabela_esteira
+                            text: 'Quantidade de Itens'
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':-0.35,'y':0.4}
+                        Label:
+                            id: Esteira1
+                            text: 'Esteira1 : '
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':-0.4,'y':0.30}
+                        Label:
+                            id: info_est1
+                            text: '0'
+                            color: 0,0,0,1
+                            font_size: 20
+                            halign: 'left'
+                            pos_hint: {'x':-0.33,'y':0.298}
+                        Label:
+                            id: Esteira2
+                            text: 'Esteira2 : '
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':-0.4,'y':0.24}
+                        Label:
+                            id: info_est2
+                            text: '0'
+                            color: 0,0,0,1
+                            font_size: 20
+                            halign: 'left'
+                            pos_hint: {'x':-0.33,'y':0.238}
+                        Label:
+                            id: Esteira3
+                            text: 'Esteira3 : '
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':-0.4,'y':0.18}
+                        Label:
+                            id: info_est3
+                            text: '0'
+                            color: 0,0,0,1
+                            font_size: 20
+                            halign: 'left'
+                            pos_hint: {'x':-0.33,'y':0.178}
+
+
 
 
 
