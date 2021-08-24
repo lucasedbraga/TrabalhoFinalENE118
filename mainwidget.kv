@@ -1,0 +1,132 @@
+#:kivy 1.11.1
+
+<MainWidget>:
+    orientation: 'vertical'
+    MDBoxLayout:
+        orientation: 'vertical'
+        MDToolbar:
+            title: " Software SCADA: Classificador Industrial"
+            left_action_items: [["connection",lambda x: app.menu_button(x), "Conectar"]]
+            right_action_items: [["cog", lambda x: app.clock_button(x), "Configurações"]]
+
+        MDBottomNavigation:
+            panel_color: app.theme_cls.primary_color
+            text_color_normal: 0,0,0,1
+            text_color_active: 0.8,0.8,0.8,1
+            MDBottomNavigationItem:
+                name: 'Planta'
+                text: 'Planta'
+                icon: 'factory'
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    spacing: 0
+                    width: 300
+                    size_hint: (1,1)
+                    canvas:
+                        Color:
+                            rgb: 0.8,0.8,0.8
+                        Rectangle:
+                            size: self.size
+                    MDBoxLayout:
+                        orientation: 'horizontal'
+                        MDLabel:
+                            text: 'Status da Planta |'
+                            text_color: 0,0,0,1
+                            bold: True
+                            halign: 'left'
+                            valign: 'center'
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            MDLabel:
+                                text: 'Parametro1: Valor '
+                                text_color: 0,0,0,1
+                                bold: True
+                                halign: 'left'
+                                valign: 'center'
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            MDLabel:
+                                text: 'Parametro2: Valor '
+                                text_color: 0,0,0,1
+                                bold: True
+                                halign: 'left'
+                                valign: 'center'
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            MDLabel:
+                                text: 'Conexão:  '
+                                text_color: 0,0,0,1
+                                bold: True
+                                halign: 'right'
+                                valign: 'center'
+                            Image:
+                                id: status_con
+                                size_hint_x: None
+                                width: 40
+                                source: 'imgs/desconectado.png'
+                                pos_hint: {'top':1,'right':1}
+
+
+                    MDFloatLayout:
+                        size_hint: (1,20)
+                        orientation:'vertical'
+                        canvas:
+                            Color:
+                                rgb: 1,1,1
+                            Rectangle:
+                                size: self.size
+
+                        Image:
+                            id: img_planta
+                            source: 'imgs/planta.png'
+                            pos_hint: {'center_x':0.5, 'center_y':0.5}
+                            size_hint: (1,1)
+                        Label:
+                            id: info_cor
+                            text: 'Nenhuma Cor'
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':0.3,'y':0.4}
+                        Label:
+                            id: info_peso
+                            text: '--.-- Kg'
+                            color: 0,0,0,1
+                            font_size: 20
+                            bold: True
+                            halign: 'left'
+                            pos_hint: {'x':0.3,'y':0.3}
+
+
+
+
+            MDBottomNavigationItem:
+                name: 'Dados em Tempo Real'
+                text: 'Dados em Tempo Real'
+                icon: 'clock'
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    padding: '20dp'
+                    spacing: '50dp'
+
+            MDBottomNavigationItem:
+                name: 'Dados Históricos'
+                text: 'Histórico'
+                icon: 'database'
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    padding: '20dp'
+                    spacing: '50dp'
+
+
+
+
+
+
+
+
+
+
+
+
