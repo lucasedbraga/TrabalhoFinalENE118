@@ -91,8 +91,8 @@ class MainWidget(MDScreen):
         """
         try:
             while self._updateWidgets:
-                self.readData()
-                # Atualizar a interface
+                self.readData() #leitura de dados
+                # Atualizar a interface gráfica
                 # Inserir os Dados no BD
                 sleep(self._velramp/1000)
 
@@ -104,7 +104,6 @@ class MainWidget(MDScreen):
     def readData(self):
         """
         Método para a leitura dos dados por meio do protocolo MODBUS
-        :return:
         """
         self._meas['timestamp'] = datetime.now()
         for card in self.ids.modbus_data.children:
