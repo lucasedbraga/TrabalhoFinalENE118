@@ -7,6 +7,8 @@ from pyModbusTCP.client import ModbusClient
 from kivy.core.window import Window
 from threading import Thread
 from time import sleep
+from datetime import datetime
+import random
 
 
 class MainWidget(MDScreen):
@@ -15,6 +17,8 @@ class MainWidget(MDScreen):
     """
     _updateThread = None
     _updateWidgets = True
+    _tags = {}
+
     def __init__(self,**kwargs):
         """
         Construtor do Widget principal
@@ -26,7 +30,12 @@ class MainWidget(MDScreen):
         self._modbusPopup = ModbusPopup(self._serverIP,self._serverPort)
         self._configPopup = ConfigPopup(self._velramp)
         self._modbusClient = ModbusClient(host=self._serverIP, port=self._serverPort)
-
+        self._meas = {}
+        self._meas['timestamp'] = None
+        self._meas['values'] = {}
+        for key.value in kwargs.get('modbus_addrs').items():
+            plot_color = (random.random(),random.random(),random.random(),1)
+            self._tags[key] = {'addr': value, 'color': plot_color}
 
 
     def config_button(self, button):
@@ -75,7 +84,7 @@ class MainWidget(MDScreen):
         """
         try:
             while self._updateWidgets:
-                # ler os dados MODBUS
+                self.readData()
                 # Atualizar a interface
                 # Inserir os Dados no BD
                 sleep(self._velramp/1000)
@@ -84,6 +93,17 @@ class MainWidget(MDScreen):
             self._modbusClient.close()
             Snackbar(text='Conexão Encerrada').open()
             print('Erro: ', e.args)
+
+    def readData(self):
+        """
+        Método para a leitura dos dados por meio do protocolo MODBUS
+        """
+        self._meas['timestamp'] = datetime.now()
+        for key,value in self._tags.items():
+            self._meas['values'][key] = self._modbusClient.read_holding_registers(value['addr'],1)[0]
+
+
+
 
 
 
