@@ -160,18 +160,40 @@
                             pos_hint: {'x':-0.33,'y':0.178}
 
 
-
-
+            MDBottomNavigationItem:
+                name: 'Atuação na Planta'
+                text: 'Atuação na Planta'
+                icon: 'cog-sync'
+                ScrollView:
+                    size_hint: (1,None)
+                    size: Window.width, Window.height
+                    bar_pos_y: 'right'
+                    bard_width: 50
+                    effect_cls: 'ScrollEffect'
+                    MDStackLayout:
+                        id: act_planta
+                        size_hint: (1,None)
+                        padding: 0.11*Window.width, "130dp"
+                        spacing: 0.02*Window.width
+                        adaptive_height: True
 
 
             MDBottomNavigationItem:
                 name: 'Dados em Tempo Real'
                 text: 'Dados em Tempo Real'
                 icon: 'clock'
-                MDBoxLayout:
-                    orientation: 'vertical'
-                    padding: '20dp'
-                    spacing: '50dp'
+                ScrollView:
+                    size_hint: (1,None)
+                    size: Window.width, Window.height
+                    bar_pos_y: 'right'
+                    bard_width: 50
+                    effect_cls: 'ScrollEffect'
+                    MDStackLayout:
+                        id: modbus_data
+                        size_hint: (1,None)
+                        padding: 0.11*Window.width, "130dp"
+                        spacing: 0.02*Window.width
+                        adaptive_height: True
 
             MDBottomNavigationItem:
                 name: 'Dados Históricos'
@@ -181,7 +203,6 @@
                     orientation: 'vertical'
                     padding: '20dp'
                     spacing: '50dp'
-
 
 
 

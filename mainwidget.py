@@ -1,12 +1,11 @@
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.snackbar import Snackbar
-from kivy.lang import Builder
 from popups import ModbusPopup, ConfigPopup
 from pyModbusTCP.client import ModbusClient
-from kivy.core.window import Window
 from threading import Thread
 from time import sleep
+from datacards import CardCoil,CardDiscreto,CardInputRegister,CardHoldingRegister
+from datetime import datetime
 
 
 class MainWidget(MDScreen):
@@ -15,6 +14,7 @@ class MainWidget(MDScreen):
     """
     _updateThread = None
     _updateWidgets = True
+
     def __init__(self,**kwargs):
         """
         Construtor do Widget principal
@@ -26,7 +26,20 @@ class MainWidget(MDScreen):
         self._modbusPopup = ModbusPopup(self._serverIP,self._serverPort)
         self._configPopup = ConfigPopup(self._velramp)
         self._modbusClient = ModbusClient(host=self._serverIP, port=self._serverPort)
+        self._tags = kwargs.get('tags')
+        self._meas = {}
+        self._meas['timestamp'] = None
+        self._meas['values'] = {}
 
+        for tag in self._tags:
+            if tag['type'] == 'input':
+                self.ids.modbus_data.add_widget(CardInputRegister(tag,self._modbusClient))
+            elif tag['type'] == 'holding':
+                self.ids.modbus_data.add_widget(CardHoldingRegister(tag,self._modbusClient))
+            elif tag['type'] == 'coil':
+                self.ids.act_planta.add_widget(CardCoil(tag,self._modbusClient))
+            elif tag['type'] == 'discrete':
+                self.ids.modbus_data.add_widget(CardDiscreto())
 
 
     def config_button(self, button):
@@ -51,13 +64,11 @@ class MainWidget(MDScreen):
         self._modbusClient.host = self._serverIP
         self._modbusClient.port = self._serverPort
         try:
-            print(self._modbusClient.host, type(self._modbusClient.host))
-            print(self._modbusClient.port, type(self._modbusClient.port))
             self._modbusClient.open()
             if self._modbusClient.is_open():
                 self._updateThread = Thread(target=self.updater)
                 self._updateThread.start()
-                Snackbar(text='Conexão Realizada').open()
+                Snackbar(text='[color=#000000] Conexão Realizada [/color]', bg_color=(0,1,0,1)).open()
                 self.ids.status_con.source = 'imgs/conectado.png'
                 self._modbusPopup.dismiss()
             else:
@@ -84,6 +95,14 @@ class MainWidget(MDScreen):
             self._modbusClient.close()
             Snackbar(text='Conexão Encerrada').open()
             print('Erro: ', e.args)
+
+    def readData(self):
+        """
+        Método para a leitura dos dados por meio do protocolo MODBUS
+        :return:
+        """
+        self._meas['timestamp'] = datetime.now()
+
 
 
 

@@ -1,0 +1,30 @@
+#: kivy 1.11.1
+<DataCard>
+    orientation: 'vertical'
+    padding: '5dp'
+    size_hint: None,None
+    size: 0.8*Window.width, "80dp"
+    pos_hint: {'center_x':1,"center_y":1}
+    MDLabel:
+        text: root.title
+        size_hint_y: None
+        height: self.texture_size[1]
+        pos_hint: {'top':1}
+    MDSeparator:
+        height: '0.5dp'
+
+<CardHoldingRegister>:
+    MDTextField:
+        id: textfield
+        helper_text: "Pressione Enter para enviar o dado"
+        helper_text_mode: 'persistent'
+
+<CardHoldingRegister>:
+    MDLabel:
+        id: label
+        helper_text: "Pressione Enter para enviar o dado"
+        helper_text_mode: 'persistent'
+
+<CardCoil>:
+    MDSwitch:
+        id: switch
