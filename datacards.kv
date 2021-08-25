@@ -18,13 +18,14 @@
         id: textfield
         helper_text: "Pressione Enter para enviar o dado"
         helper_text_mode: 'persistent'
+        multiline: False
+        on_text_validate: root.write_data()
 
-<CardHoldingRegister>:
+<CardInputRegister>:
     MDLabel:
         id: label
-        helper_text: "Pressione Enter para enviar o dado"
-        helper_text_mode: 'persistent'
 
 <CardCoil>:
     MDSwitch:
         id: switch
+        on_release: root.write_data()

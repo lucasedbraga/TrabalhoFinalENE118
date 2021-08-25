@@ -4,8 +4,9 @@ from popups import ModbusPopup, ConfigPopup
 from pyModbusTCP.client import ModbusClient
 from threading import Thread
 from time import sleep
-from datacards import CardCoil,CardDiscreto,CardInputRegister,CardHoldingRegister
+from datacards import CardCoil,CardInputRegister,CardHoldingRegister
 from datetime import datetime
+import random
 
 
 class MainWidget(MDScreen):
@@ -14,6 +15,7 @@ class MainWidget(MDScreen):
     """
     _updateThread = None
     _updateWidgets = True
+    _tags = {}
 
     def __init__(self,**kwargs):
         """
@@ -30,16 +32,19 @@ class MainWidget(MDScreen):
         self._meas = {}
         self._meas['timestamp'] = None
         self._meas['values'] = {}
+        for tag in self._tags:
+            plot_color = (random.random(),random.random(),random.random(),1)
+            tag['color'] = plot_color
+
 
         for tag in self._tags:
             if tag['type'] == 'input':
                 self.ids.modbus_data.add_widget(CardInputRegister(tag,self._modbusClient))
             elif tag['type'] == 'holding':
-                self.ids.modbus_data.add_widget(CardHoldingRegister(tag,self._modbusClient))
+                self.ids.act_planta.add_widget(CardHoldingRegister(tag,self._modbusClient))
             elif tag['type'] == 'coil':
                 self.ids.act_planta.add_widget(CardCoil(tag,self._modbusClient))
-            elif tag['type'] == 'discrete':
-                self.ids.modbus_data.add_widget(CardDiscreto())
+
 
 
     def config_button(self, button):
@@ -86,14 +91,14 @@ class MainWidget(MDScreen):
         """
         try:
             while self._updateWidgets:
-                # ler os dados MODBUS
+                self.readData()
                 # Atualizar a interface
                 # Inserir os Dados no BD
                 sleep(self._velramp/1000)
 
         except Exception as e:
             self._modbusClient.close()
-            Snackbar(text='Conexão Encerrada').open()
+            Snackbar(text='Conexão Encerrada',bg_color=(1,0,0,1)).open()
             print('Erro: ', e.args)
 
     def readData(self):
@@ -102,7 +107,22 @@ class MainWidget(MDScreen):
         :return:
         """
         self._meas['timestamp'] = datetime.now()
+        for card in self.ids.modbus_data.children:
+            if card.tag['type'] == 'input':
+                card.update_data()
+        for card in self.ids.act_planta.children:
+            if card.tag['type'] == 'holding' or card.tag['type'] == 'coil':
+                card.update_data()
 
+    def updateGUI(self):
+        """
+        Método para atualização da interface gráfica a partir dos dados lidos
+        """
+        # Atualização dos Labels
+        pass
+
+    def stopRefresh(self):
+        self._updateWidgets = False
 
 
 
