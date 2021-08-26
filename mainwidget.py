@@ -92,13 +92,14 @@ class MainWidget(MDScreen):
         try:
             while self._updateWidgets:
                 self.readData() #leitura de dados
-                # Atualizar a interface gráfica
+                self.updateGUI()
                 # Inserir os Dados no BD
                 sleep(self._velramp/1000)
 
         except Exception as e:
             self._modbusClient.close()
             Snackbar(text='Conexão Encerrada',bg_color=(1,0,0,1)).open()
+            self.ids.status_con.source = 'imgs/desconectado.png'
             print('Erro: ', e.args)
 
     def readData(self):
@@ -106,19 +107,86 @@ class MainWidget(MDScreen):
         Método para a leitura dos dados por meio do protocolo MODBUS
         """
         self._meas['timestamp'] = datetime.now()
+
         for card in self.ids.modbus_data.children:
             if card.tag['type'] == 'input':
-                card.update_data()
+                self._meas['values'][card.tag['name']] = card.update_data()
+
         for card in self.ids.act_planta.children:
             if card.tag['type'] == 'holding' or card.tag['type'] == 'coil':
-                card.update_data()
+                self._meas['values'][card.tag['name']] = card.update_data()
 
     def updateGUI(self):
         """
         Método para atualização da interface gráfica a partir dos dados lidos
         """
         # Atualização dos Labels
-        pass
+        self.ids['info_cor'].text = 'Nenhum Objeto'
+        self.ids['info_cor'].color = 0, 0, 0, 1
+        self.ids['img_peca'].source = 'imgs/load.png'
+
+
+        R = G = B = 0
+
+        for card in self.ids.modbus_data.children:
+            if card.tag['address'] in [813,814,815,816]:
+                self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']])
+            if card.tag['address'] == 809:
+                self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']]) + ' Kg'
+            if card.tag['address'] == 810:
+                R = self._meas['values'][card.tag['name']]
+            if card.tag['address'] == 811:
+                G = self._meas['values'][card.tag['name']]
+            if card.tag['address'] == 812:
+                B = self._meas['values'][card.tag['name']]
+
+
+        if R == G == B == 0:
+            self.ids['info_cor'].text = 'Preto'
+            self.ids['info_cor'].color = 0, 0, 0, 1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+        if R == G == B == 0:
+            self.ids['info_cor'].text = 'Branco'
+            self.ids['info_cor'].color = 0.5, 0.5, 0.5, 1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+        if R == G > B:
+            self.ids['info_cor'].text = 'Amarelo'
+            self.ids['info_cor'].color = 1,1,0,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+
+        if R == B > G:
+            self.ids['info_cor'].text = 'Rosa'
+            self.ids['info_cor'].color = 1,0,1,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+
+        if B == G > R:
+            self.ids['info_cor'].text = 'Ciano'
+            self.ids['info_cor'].color = 0,1,1,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+        if R > G and R > B:
+            self.ids['info_cor'].text = 'Vermelho'
+            self.ids['info_cor'].color = 1,0,0,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+
+        if G > R and G > B:
+            self.ids['info_cor'].text = 'Verde'
+            self.ids['info_cor'].color = 0,1,0,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+        if B > G and B > R:
+            self.ids['info_cor'].text = 'Azul'
+            self.ids['info_cor'].color = 0,0,1,1
+            self.ids['img_peca'].source = 'imgs/peca.png'
+
+
+
+
 
     def stopRefresh(self):
         self._updateWidgets = False

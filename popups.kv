@@ -106,3 +106,17 @@
                 text: 'Fechar'
                 on_release:
                     root.dismiss()
+
+<save>:
+
+    Label:
+        id: peca
+        size_hint: (0.15,0.15)
+        size: (1,1)
+        pos_hint: {'x':1.5,'y':1}
+        canvas:
+            Color:
+                rgb: 0,1,0,1
+            Rectangle:
+                size: self.size
+                pos: (319,282)

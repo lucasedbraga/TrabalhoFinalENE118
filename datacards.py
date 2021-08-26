@@ -11,7 +11,8 @@ class DataCard(MDCard):
     def update_data(self):
         try:
             if self._modbusClient.is_open():
-                self.set_data(self._read_data(self.tag['address'],1)[0])
+                self.value = self.set_data(self._read_data(self.tag['address'],1)[0])
+                return self.value
 
         except Exception as e:
             print(f"Erro na Leitura do dado {self.tag['name']} ",e.args)
@@ -33,7 +34,9 @@ class CardHoldingRegister(DataCard):
 
     def set_data(self,data):
         mult = self.tag['mult']
-        self.ids.textfield.text = str(mult*data)
+        value = str(mult*data)
+        self.ids.textfield.text = value
+        return value
 
     def get_data(self):
         return int(self.ids.textfield.text)
@@ -45,7 +48,9 @@ class CardInputRegister(DataCard):
 
     def set_data(self,data):
         mult = self.tag['mult']
-        self.ids.label.text = str(mult*data)
+        value = str(mult*data)
+        self.ids.label.text = value
+        return value
 
 
 class CardCoil(DataCard):
@@ -55,7 +60,9 @@ class CardCoil(DataCard):
         self._write_data_fcn = self._modbusClient.write_single_coil
 
     def set_data(self,data):
-        self.ids.switch.active = data
+        value = data
+        self.ids.switch.active = value
+        return value
 
     def get_data(self):
         return self.ids.switch.active
