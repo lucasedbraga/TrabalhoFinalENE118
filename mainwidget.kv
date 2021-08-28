@@ -77,16 +77,16 @@
                                 size: self.size
 
                         Image:
-                            id: img_peca
-                            source: 'imgs/peca.png'
-                            pos_hint: {'center_x':0.478, 'center_y':0.7}
-                            size_hint: (0.2,0.2)
-
-                        Image:
                             id: img_planta
-                            source: 'imgs/planta.png'
+                            source: 'imgs/planta_standby.jpg'
                             pos_hint: {'center_x':0.5, 'center_y':0.5}
                             size_hint: (1,1)
+
+                        Image:
+                            id: img_peca
+                            source: 'imgs/standby.png'
+                            pos_hint: {'center_x':0.478, 'center_y':0.7}
+                            size_hint: (0.2,0.18)
 
                         Label:
                             id: tabela_atual

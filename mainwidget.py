@@ -7,6 +7,8 @@ from time import sleep
 from datacards import CardCoil,CardInputRegister,CardHoldingRegister
 from datetime import datetime
 import random
+from kivy.clock import Clock
+from functools import partial
 
 
 class MainWidget(MDScreen):
@@ -73,9 +75,11 @@ class MainWidget(MDScreen):
             if self._modbusClient.is_open():
                 self._updateThread = Thread(target=self.updater)
                 self._updateThread.start()
+
                 Snackbar(text='[color=#000000] Conexão Realizada [/color]', bg_color=(0,1,0,1)).open()
                 self.ids.status_con.source = 'imgs/conectado.png'
                 self._modbusPopup.dismiss()
+
             else:
                 self._modbusClient.last_error()
                 self._modbusPopup.setInfo('Falha na Conexão com o Servidor')
@@ -115,74 +119,90 @@ class MainWidget(MDScreen):
         for card in self.ids.act_planta.children:
             if card.tag['type'] == 'holding' or card.tag['type'] == 'coil':
                 self._meas['values'][card.tag['name']] = card.update_data()
+    
+    def updateImage(self,img_src,dt):
+        self.ids['img_peca'].source = img_src
 
-    def updateGUI(self):
+    def updateBackground(self,img_src,dt):
+        self.ids['img_planta'].source = img_src
+
+
+
+    def updateGUI(self,**kwargs):
         """
         Método para atualização da interface gráfica a partir dos dados lidos
         """
         # Atualização dos Labels
-        self.ids['info_cor'].text = 'Nenhum Objeto'
-        self.ids['info_cor'].color = 0, 0, 0, 1
-        self.ids['img_peca'].source = 'imgs/load.png'
+
+        if self._meas['values']['bt_Desliga/Liga'] == True:
+            Clock.schedule_once(partial(self.updateBackground, 'imgs/planta_off.png'))
+            Clock.schedule_once(partial(self.updateImage, 'imgs/standby.png'))
+        else:
+            Clock.schedule_once(partial(self.updateBackground,'imgs/planta_on.jpg'))
 
 
-        R = G = B = 0
-
-        for card in self.ids.modbus_data.children:
-            if card.tag['address'] in [813,814,815,816]:
-                self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']])
-            if card.tag['address'] == 809:
-                self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']]) + ' Kg'
-            if card.tag['address'] == 810:
-                R = self._meas['values'][card.tag['name']]
-            if card.tag['address'] == 811:
-                G = self._meas['values'][card.tag['name']]
-            if card.tag['address'] == 812:
-                B = self._meas['values'][card.tag['name']]
-
-
-        if R == G == B == 0:
-            self.ids['info_cor'].text = 'Preto'
+            self.ids['info_cor'].text = 'Nenhum Objeto'
             self.ids['info_cor'].color = 0, 0, 0, 1
-            self.ids['img_peca'].source = 'imgs/peca.png'
-
-        if R == G == B == 0:
-            self.ids['info_cor'].text = 'Branco'
-            self.ids['info_cor'].color = 0.5, 0.5, 0.5, 1
-            self.ids['img_peca'].source = 'imgs/peca.png'
-
-        if R == G > B:
-            self.ids['info_cor'].text = 'Amarelo'
-            self.ids['info_cor'].color = 1,1,0,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+            Clock.schedule_once(partial(self.updateImage,'imgs/load.png'))
 
 
-        if R == B > G:
-            self.ids['info_cor'].text = 'Rosa'
-            self.ids['info_cor'].color = 1,0,1,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+            R = G = B = 0
+
+            for card in self.ids.modbus_data.children:
+                if card.tag['address'] in [813,814,815,816]:
+                    self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']])
+                if card.tag['address'] == 809:
+                    self.ids[card.tag['name']].text = str(self._meas['values'][card.tag['name']]) + ' Kg'
+                if card.tag['address'] == 810:
+                    R = self._meas['values'][card.tag['name']]
+                if card.tag['address'] == 811:
+                    G = self._meas['values'][card.tag['name']]
+                if card.tag['address'] == 812:
+                    B = self._meas['values'][card.tag['name']]
 
 
-        if B == G > R:
-            self.ids['info_cor'].text = 'Ciano'
-            self.ids['info_cor'].color = 0,1,1,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+            if R == G == B == 0:
+                self.ids['info_cor'].text = 'Preto'
+                self.ids['info_cor'].color = 0, 0, 0, 1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_preta.jpg'))
 
-        if R > G and R > B:
-            self.ids['info_cor'].text = 'Vermelho'
-            self.ids['info_cor'].color = 1,0,0,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+            if R == G == B == 0:
+                self.ids['info_cor'].text = 'Branco'
+                self.ids['info_cor'].color = 0.5, 0.5, 0.5, 1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_branca.png'))
+
+            if R == G > B:
+                self.ids['info_cor'].text = 'Amarelo'
+                self.ids['info_cor'].color = 1,1,0,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_rg.jpg'))
+
+            if R == B > G:
+                self.ids['info_cor'].text = 'Rosa'
+                self.ids['info_cor'].color = 1,0,1,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_rb.jpg'))
+
+            if B == G > R:
+                self.ids['info_cor'].text = 'Ciano'
+                self.ids['info_cor'].color = 0,1,1,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_gb.jpg'))
 
 
-        if G > R and G > B:
-            self.ids['info_cor'].text = 'Verde'
-            self.ids['info_cor'].color = 0,1,0,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+            if R > G and R > B:
+                self.ids['info_cor'].text = 'Vermelho'
+                self.ids['info_cor'].color = 1,0,0,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_r.png'))
 
-        if B > G and B > R:
-            self.ids['info_cor'].text = 'Azul'
-            self.ids['info_cor'].color = 0,0,1,1
-            self.ids['img_peca'].source = 'imgs/peca.png'
+
+
+            if G > R and G > B:
+                self.ids['info_cor'].text = 'Verde'
+                self.ids['info_cor'].color = 0,1,0,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_g.jpg'))
+
+            if B > G and B > R:
+                self.ids['info_cor'].text = 'Azul'
+                self.ids['info_cor'].color = 0,0,1,1
+                Clock.schedule_once(partial(self.updateImage,'imgs/peca_b.png'))
 
 
 
