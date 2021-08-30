@@ -1,6 +1,7 @@
 from kivymd.app import MDApp
 from mainwidget import MainWidget
-from kivy.lang.builder import Builder
+#from kivy.lang.builder import Builder
+from modulopersistencia import ModbusPersistencia
 
 
 class MainApp(MDApp):
@@ -54,6 +55,7 @@ class MainApp(MDApp):
         {'name': 'filtro_massa_3', 'description': 'Valor do filtro de massa da esteira 3 [massa(obj) >= filtro_massa]', 'address': 1024, 'type': 'holding','mult':1}
         ]
         self._widget = MainWidget(vel_ramp=1000, server_ip='127.0.0.1', server_port=9000, tags=self.modbus_addrs)
+        mod = ModbusPersistencia('localhost',502,tags_addrs= self.modbus_addrs)
         return self._widget
 
 
@@ -67,7 +69,8 @@ class MainApp(MDApp):
 
 
 if __name__ == '__main__':
-    Builder.load_string(open('mainwidget.kv',encoding='utf-8').read(),rulesonly=True)
-    Builder.load_string(open('popups.kv', encoding='utf-8').read(), rulesonly=True)
-    Builder.load_string(open('datacards.kv', encoding='utf-8').read(), rulesonly=True)
+    #Builder.load_string(open('mainwidget.kv',encoding='utf-8').read(),rulesonly=True)
+    #Builder.load_string(open('popups.kv', encoding='utf-8').read(), rulesonly=True)
+    #Builder.load_string(open('datacards.kv', encoding='utf-8').read(), rulesonly=True)
     MainApp().run()
+   
