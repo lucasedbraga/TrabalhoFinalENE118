@@ -2,14 +2,16 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.snackbar import Snackbar
 from popups import ModbusPopup, ConfigPopup
 from pyModbusTCP.client import ModbusClient
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 from datacards import CardCoil,CardInputRegister,CardHoldingRegister
 from datetime import datetime
 import random
 from kivy.clock import Clock
 from functools import partial
-
+from sqlalchemy import engine
+from db import Session, Base, engine
+from models import DadosCLP
 
 class MainWidget(MDScreen):
     """
@@ -34,6 +36,12 @@ class MainWidget(MDScreen):
         self._meas = {}
         self._meas['timestamp'] = None
         self._meas['values'] = {}
+        self._scan_time = scan_time
+        self._tags_addrs = tags_addrs
+        self._session = Session()
+        Base.metadata.create_all(engine)
+        self._lock = Lock()
+        self.guardar_dados = Thread(target=self.guardar_dados)
         for tag in self._tags:
             plot_color = (random.random(),random.random(),random.random(),1)
             tag['color'] = plot_color
@@ -98,6 +106,7 @@ class MainWidget(MDScreen):
                 self.readData() #leitura de dados
                 self.updateGUI()
                 # Inserir os Dados no BD
+                self.guardar_dados()
                 sleep(self._velramp/1000)
 
         except Exception as e:
@@ -210,6 +219,28 @@ class MainWidget(MDScreen):
 
     def stopRefresh(self):
         self._updateWidgets = False
+
+    def guardar_dados(self):
+        """
+        Método para a leitura dos dados do servidor e armazenamento no BD
+        """
+        try:
+            print("Persistencia iniciada")
+            self._cliente_modbus.open()
+            data = {}
+            while True:
+                data['timestamp'] = datetime.now()
+                for tag in self._tags_addrs:
+                    data[tag['name']] = self._cliente_modbus.read_holding_registers(tag['address'],1)[0]
+                dado = DadosCLP(**data)
+                self._lock.acquire()
+                self._session.add(dado)
+                self._session.commit()
+                self._lock.release()
+                sleep(self._scan_time)
+
+        except Exception as e:
+            print("Erro na persistencia de dados: ", e.args)
 
 
 
