@@ -14,7 +14,7 @@ class DadosCLP(Base):
     bt_Desliga_Liga = Column(Boolean)
     t_part = Column(float)
     freq_des = Column(Float)
-    freq_motor = Column(Float)
+    freq_mot = Column(Float)
     tensao = Column(Float)
     rotacao = Column(Float)
     pot_entrada = Column(Float)
@@ -45,3 +45,42 @@ class DadosCLP(Base):
     filtro_cor_g_3 = Column(Integer)
     filtro_cor_b_3 = Column(Integer)
     filtro_massa_3 = Column(Integer)
+
+    def get_attr_printable_list(self):
+        return [self.id,
+                self.timestamp.strftime('%d/%m/%Y %H:%M:%S.%f'),
+                self.estado_atuador,
+                self.bt_Desliga_Liga,
+                self.t_part,
+                self.freq_des,
+                self.freq_mot,
+                self.tensao,
+                self.rotacao,
+                self.pot_entrada,
+                self.corrente,
+                self.temp_estator,
+                self.vel_esteira,
+                self.carga,
+                self.peso_obj,
+                self.cor_obj_R,
+                self.cor_obj_G,
+                self.cor_obj_B,
+                self.numObj_est_1,
+                self.numObj_est_2,
+                self.numObj_est_3,
+                self.numObj_est_nc,
+                self.filtro_est_1,
+                self.filtro_est_2,
+                self.filtro_est_3,
+                self.filtro_cor_r_1,
+                self.filtro_cor_g_1,
+                self.filtro_cor_b_1,
+                self.filtro_massa_1,
+                self.filtro_cor_r_2,
+                self.filtro_cor_g_2,
+                self.filtro_cor_b_2,
+                self.filtro_massa_2,
+                self.filtro_cor_r_3,
+                self.filtro_cor_g_3,
+                self.filtro_cor_b_3,
+                self.filtro_massa_3]

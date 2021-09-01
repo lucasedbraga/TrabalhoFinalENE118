@@ -12,6 +12,7 @@ from functools import partial
 from sqlalchemy import engine
 from db import Session, Base, engine
 from models import DadosCLP
+from tabulate import tabulate
 
 class MainWidget(MDScreen):
     """
@@ -238,6 +239,27 @@ class MainWidget(MDScreen):
                 self._session.commit()
                 self._lock.release()
                 sleep(self._scan_time)
+
+        except Exception as e:
+            print("Erro na persistencia de dados: ", e.args)
+
+    def acesso_dados_historicos(self):
+        """
+        Método que permite ao usuário acessar dados históricos
+        """
+        try:
+            print("Bem vindo ao sistema de busca de dados históricos")
+            while True:
+                init = input("Digite o horário inicial para a busca (DD/MM/AAAA HH:MM:SS): ")
+                final = input("Digite o horário final para a busca (DD/MM/AAAA HH:MM:SS): ")
+                init = datetime.strptime(init,'%d/%m/%Y %H:%M:%S')
+                final = datetime.strptime(final,'%d/%m/%Y %H:%M:%S')
+                self._lock.acquire()
+                result = self._session.query(DadosCLP.timestamp.between(init,final)).all()
+                result_fmt_list = [obj.get_attr_printable_list() for obj in result]
+                self._lock.release()
+
+                print(tabulate(result_fmt_list,headers=DadosCLP.__table__.columns.keys()))
 
         except Exception as e:
             print("Erro na persistencia de dados: ", e.args)

@@ -72,4 +72,6 @@ if __name__ == '__main__':
     Builder.load_string(open('datacards.kv', encoding='utf-8').read(), rulesonly=True)
     MainApp().run()
     MainWidget.guardar_dados.start()
+    MainWidget.acesso_dados_historicos()
+
    
