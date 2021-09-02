@@ -1,5 +1,7 @@
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy_garden.graph import LinePlot
+from kivy.uix.boxlayout import BoxLayout
 
 class ModbusPopup(Popup):
     """
@@ -34,3 +36,15 @@ class ConfigPopup(Popup):
         """
         super().__init__(**kwargs)
         self.ids.vel_ramp.txt = str(vel_ramp)
+        
+class DataGraphPopup(Popup):
+    def __init__(self, xmax, color, **kwargs):
+        super().__init__(**kwargs)
+        self.plot = LinePlot(line_widget=1.5,color=plot_color)
+        self.ids.graph.add_plot(self.plot)
+        self.ids.graph.xmax = xmax
+
+class LabelCheckBoxDataGraph(BoxLayout):
+    pass
+
+

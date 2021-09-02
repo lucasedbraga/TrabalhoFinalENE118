@@ -216,6 +216,8 @@
                         padding: 0.11*Window.width, "130dp"
                         spacing: 0.02*Window.width
                         adaptive_height: True
+                        on_release:
+                            root._graph.open()
 
             MDBottomNavigationItem:
                 name: 'Dados Históricos'

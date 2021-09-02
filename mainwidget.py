@@ -1,6 +1,6 @@
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.snackbar import Snackbar
-from popups import ModbusPopup, ConfigPopup
+from popups import ModbusPopup, ConfigPopup, DataGraphPopup
 from pyModbusTCP.client import ModbusClient
 from threading import Thread, Lock
 from time import sleep
@@ -13,6 +13,7 @@ from sqlalchemy import engine
 from db import Session, Base, engine
 from models import DadosCLP
 from tabulate import tabulate
+from timeseriesgraph import  TimeSeriesGraph
 
 class MainWidget(MDScreen):
     """
@@ -21,6 +22,7 @@ class MainWidget(MDScreen):
     _updateThread = None
     _updateWidgets = True
     _tags = {}
+    _max_points = 20
 
     def __init__(self,**kwargs):
         """
@@ -56,6 +58,7 @@ class MainWidget(MDScreen):
             elif tag['type'] == 'coil':
                 self.ids.act_planta.add_widget(CardCoil(tag,self._modbusClient))
 
+        self._graph = DataGraphPopup(self._max_points,self._tags['peso_obj']['color'])
 
 
     def config_button(self, button):
@@ -108,6 +111,8 @@ class MainWidget(MDScreen):
                 self.updateGUI()
                 # Inserir os Dados no BD
                 self.guardar_dados()
+                #Atualização do Gráfico
+                self._graph.ids.graph.updateGraph((self._meas['timestamp'], self._meas['values']['peso_obj']), 0)
                 sleep(self._velramp/1000)
 
         except Exception as e:

@@ -1,6 +1,6 @@
 from sqlalchemy.sql.sqltypes import Boolean
 from db import Base
-from sqlalchemy import Column, Integer, DateTime, Float, Boolean
+from sqlalchemy import Column, Integer, DateTime, Float
 
 
 class DadosCLP(Base):
@@ -10,8 +10,8 @@ class DadosCLP(Base):
     __tablename__ = 'dadosclp'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
-    estado_atuador = Column(Boolean)
-    bt_Desliga_Liga = Column(Boolean)
+    estado_atuador = Column(Integer)
+    bt_Desliga_Liga = Column(Integer)
     t_part = Column(float)
     freq_des = Column(Float)
     freq_mot = Column(Float)
