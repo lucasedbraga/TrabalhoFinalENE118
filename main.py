@@ -18,7 +18,7 @@ class MainApp(MDApp):
         self.theme_cls.accent_pallete = "Gray"
         self.modbus_addrs = [
         {'name': 'estado_atuador', 'description': 'Atuador mecânico que posiciona objetos na esteira (1 - ativo | 0 - inativo)', 'address': 801, 'type': 'coil','mult':1},
-        {'name': 'bt_Desliga/Liga', 'description': 'Botão NF Liga/Desliga do processo: (1 - Desliga | 0 - Liga)', 'address': 802, 'type': 'coil','mult':1},
+        {'name': 'bt_Desliga_Liga', 'description': 'Botão NF Liga/Desliga do processo: (1 - Desliga | 0 - Liga)', 'address': 802, 'type': 'coil','mult':1},
         {'name': 't_part', 'description': 'Tempo de partida do motor', 'address': 798, 'type': 'holding','mult':10},
         {'name': 'freq_des', 'description':'Frequência de operação desejada para o motor (prop. à rotação)', 'address': 799, 'type': 'holding','mult':1},
         {'name': 'freq_mot', 'description':'Frequência do motor medida', 'address': 800, 'type': 'input','mult':10},
@@ -29,7 +29,7 @@ class MainApp(MDApp):
         {'name': 'temp_estator', 'description': 'Temperatura do estator do motor', 'address': 806, 'type': 'input','mult':10},
         {'name': 'vel_esteira', 'description': 'Velocidade linear da esteira', 'address': 807, 'type': 'input','mult':100},
         {'name': 'carga', 'description': 'Peso normalizado do objeto gerado', 'address': 808, 'type': 'input','mult':100},
-        {'name': 'peso_obj', 'description': 'Peso do objeto', 'address': 809, 'type': 'input','mult':1},
+        {'name': 'peso_obj', 'description': 'Peso do objeto', 'address': 809, 'type': 'input','mult':100},  
         {'name': 'cor_obj_R', 'description': 'Componente VERMELHA da cor lida pelo sensor', 'address': 810, 'type': 'input','mult':1},
         {'name': 'cor_obj_G', 'description': 'Componente VERDE da cor lida pelo sensor', 'address': 811, 'type': 'input','mult':1},
         {'name': 'cor_obj_B', 'description': 'Componente AZUL da cor lida pelo sensor', 'address': 812, 'type': 'input','mult':1},
@@ -44,13 +44,13 @@ class MainApp(MDApp):
         {'name': 'filtro_cor_g_1', 'description': 'Componente VERDE do filtro de cor da esteira 1 (0 ou 255)', 'address': 1002,'type':'holding','mult':1},
         {'name': 'filtro_cor_b_1', 'description': 'Componente AZUL do filtro de cor da esteira 1 (0 ou 255)', 'address': 1003,'type':'holding','mult':1},
         {'name': 'filtro_massa_1', 'description': 'Valor do filtro de massa da esteira 1 [massa(obj) >= filtro_massa]', 'address': 1004,'type':'holding','mult':1},
-        {'name': 'filtro_cor_r_2', 'description': 'Componente VERMELHA do filtro de cor da esteira 1 (0 ou 255)', 'address': 1011, 'type': 'holding','mult':1},
-        {'name': 'filtro_cor_g_2', 'description': 'Componente VERDE do filtro de cor da esteira 1 (0 ou 255)', 'address': 1012, 'type': 'holding','mult':1},
-        {'name': 'filtro_cor_b_2', 'description': 'Componente AZUL do filtro de cor da esteira 1 (0 ou 255)', 'address': 1013, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_r_2', 'description': 'Componente VERMELHA do filtro de cor da esteira 2 (0 ou 255)', 'address': 1011, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_g_2', 'description': 'Componente VERDE do filtro de cor da esteira 2 (0 ou 255)', 'address': 1012, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_b_2', 'description': 'Componente AZUL do filtro de cor da esteira 2 (0 ou 255)', 'address': 1013, 'type': 'holding','mult':1},
         {'name': 'filtro_massa_2', 'description': 'Valor do filtro de massa da esteira 2 [massa(obj) >= filtro_massa]', 'address': 1014, 'type': 'holding','mult':1},
-        {'name': 'filtro_cor_r_3', 'description': 'Componente VERMELHA do filtro de cor da esteira 1 (0 ou 255)', 'address': 1021, 'type': 'holding','mult':1},
-        {'name': 'filtro_cor_g_3', 'description': 'Componente VERDE do filtro de cor da esteira 1 (0 ou 255)', 'address': 1022, 'type': 'holding','mult':1},
-        {'name': 'filtro_cor_b_3', 'description': 'Componente AZUL do filtro de cor da esteira 1 (0 ou 255)', 'address': 1023, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_r_3', 'description': 'Componente VERMELHA do filtro de cor da esteira 3 (0 ou 255)', 'address': 1021, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_g_3', 'description': 'Componente VERDE do filtro de cor da esteira 3 (0 ou 255)', 'address': 1022, 'type': 'holding','mult':1},
+        {'name': 'filtro_cor_b_3', 'description': 'Componente AZUL do filtro de cor da esteira 3 (0 ou 255)', 'address': 1023, 'type': 'holding','mult':1},
         {'name': 'filtro_massa_3', 'description': 'Valor do filtro de massa da esteira 3 [massa(obj) >= filtro_massa]', 'address': 1024, 'type': 'holding','mult':1}
         ]
         self._widget = MainWidget(vel_ramp=1000, server_ip='127.0.0.1', server_port=9000, tags=self.modbus_addrs)
@@ -71,7 +71,6 @@ if __name__ == '__main__':
     Builder.load_string(open('popups.kv', encoding='utf-8').read(), rulesonly=True)
     Builder.load_string(open('datacards.kv', encoding='utf-8').read(), rulesonly=True)
     MainApp().run()
-    MainWidget.guardar_dados.start()
-    MainWidget.acesso_dados_historicos()
+
 
    

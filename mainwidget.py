@@ -1,6 +1,9 @@
+from logging import info
+from os import name
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.snackbar import Snackbar
-from popups import ModbusPopup, ConfigPopup, DataGraphPopup
+from popups import ModbusPopup, ConfigPopup 
 from pyModbusTCP.client import ModbusClient
 from threading import Thread, Lock
 from time import sleep
@@ -12,8 +15,9 @@ from functools import partial
 from sqlalchemy import engine
 from db import Session, Base, engine
 from models import DadosCLP
-from tabulate import tabulate
+from kivy_garden.graph import LinePlot
 from timeseriesgraph import  TimeSeriesGraph
+
 
 class MainWidget(MDScreen):
     """
@@ -39,16 +43,9 @@ class MainWidget(MDScreen):
         self._meas = {}
         self._meas['timestamp'] = None
         self._meas['values'] = {}
-        self._scan_time = scan_time
-        self._tags_addrs = tags_addrs
         self._session = Session()
         Base.metadata.create_all(engine)
         self._lock = Lock()
-        self.guardar_dados = Thread(target=self.guardar_dados)
-        for tag in self._tags:
-            plot_color = (random.random(),random.random(),random.random(),1)
-            tag['color'] = plot_color
-
 
         for tag in self._tags:
             if tag['type'] == 'input':
@@ -57,13 +54,30 @@ class MainWidget(MDScreen):
                 self.ids.act_planta.add_widget(CardHoldingRegister(tag,self._modbusClient))
             elif tag['type'] == 'coil':
                 self.ids.act_planta.add_widget(CardCoil(tag,self._modbusClient))
+            
+            if tag['address'] in [809,810,811,812]:
+                endereco = tag['address']
+                if endereco == 809:
+                    plot_color = (0,0,0,1)
+                    tag['color'] = plot_color
+                if endereco == 810:
+                    plot_color = (1,0,0,1)
+                    tag['color'] = plot_color
+                if endereco == 811:
+                    plot_color = (0,1,0,1)
+                    tag['color'] = plot_color
+                if endereco == 812:
+                    plot_color = (0,0,1,1)
+                    tag['color'] = plot_color
+                
+                cb = LabeledCheckBoxHistGraph()
+                cb.ids.label.text = tag['name']
+                cb.ids.label.color = tag['color']
+                cb.id = tag['name']
+                self.ids.sensores.add_widget(cb)
 
-        self._graph = DataGraphPopup(self._max_points,self._tags['peso_obj']['color'])
 
 
-    def config_button(self, button):
-        self._configPopup.open()
-        Snackbar(text='Teste1').open()
 
     def conect_button(self, button):
         self._modbusPopup.open()
@@ -85,8 +99,11 @@ class MainWidget(MDScreen):
         try:
             self._modbusClient.open()
             if self._modbusClient.is_open():
+                self._guardar_dados = Thread(target=self.guardar_dados)
                 self._updateThread = Thread(target=self.updater)
                 self._updateThread.start()
+                self._guardar_dados.start()
+                
 
                 Snackbar(text='[color=#000000] Conexão Realizada [/color]', bg_color=(0,1,0,1)).open()
                 self.ids.status_con.source = 'imgs/conectado.png'
@@ -107,13 +124,10 @@ class MainWidget(MDScreen):
         """
         try:
             while self._updateWidgets:
-                self.readData() #leitura de dados
-                self.updateGUI()
-                # Inserir os Dados no BD
-                self.guardar_dados()
-                #Atualização do Gráfico
-                self._graph.ids.graph.updateGraph((self._meas['timestamp'], self._meas['values']['peso_obj']), 0)
-                sleep(self._velramp/1000)
+                self.readData() # Leitura de dados
+                self.updateGUI() # Atualização da IHM
+                self.guardar_dados() # Inserir os Dados no BD
+                sleep(500/1000)
 
         except Exception as e:
             self._modbusClient.close()
@@ -149,7 +163,7 @@ class MainWidget(MDScreen):
         """
         # Atualização dos Labels
 
-        if self._meas['values']['bt_Desliga/Liga'] == True:
+        if self._meas['values']['bt_Desliga_Liga'] == True:
             Clock.schedule_once(partial(self.updateBackground, 'imgs/planta_off.png'))
             Clock.schedule_once(partial(self.updateImage, 'imgs/standby.png'))
         else:
@@ -158,6 +172,8 @@ class MainWidget(MDScreen):
 
             self.ids['info_cor'].text = 'Nenhum Objeto'
             self.ids['info_cor'].color = 0, 0, 0, 1
+            self.ids['info_velramp'].text = f"Vel.Esteira: {self._meas['values']['vel_esteira']} m/s"
+            self.ids['info_tensaorede'].text = f"Tensão: {self._meas['values']['tensao']} V"
             Clock.schedule_once(partial(self.updateImage,'imgs/load.png'))
 
 
@@ -181,22 +197,22 @@ class MainWidget(MDScreen):
                 self.ids['info_cor'].color = 0, 0, 0, 1
                 Clock.schedule_once(partial(self.updateImage,'imgs/peca_preta.jpg'))
 
-            if R == G == B == 0:
+            if R == G == B == 255:
                 self.ids['info_cor'].text = 'Branco'
                 self.ids['info_cor'].color = 0.5, 0.5, 0.5, 1
                 Clock.schedule_once(partial(self.updateImage,'imgs/peca_branca.png'))
 
-            if R == G > B:
+            if R == G and R > B:
                 self.ids['info_cor'].text = 'Amarelo'
                 self.ids['info_cor'].color = 1,1,0,1
                 Clock.schedule_once(partial(self.updateImage,'imgs/peca_rg.jpg'))
 
-            if R == B > G:
+            if R == B and R > G:
                 self.ids['info_cor'].text = 'Rosa'
                 self.ids['info_cor'].color = 1,0,1,1
                 Clock.schedule_once(partial(self.updateImage,'imgs/peca_rb.jpg'))
 
-            if B == G > R:
+            if B == G and B > R:
                 self.ids['info_cor'].text = 'Ciano'
                 self.ids['info_cor'].color = 0,1,1,1
                 Clock.schedule_once(partial(self.updateImage,'imgs/peca_gb.jpg'))
@@ -223,6 +239,7 @@ class MainWidget(MDScreen):
 
 
 
+
     def stopRefresh(self):
         self._updateWidgets = False
 
@@ -231,43 +248,95 @@ class MainWidget(MDScreen):
         Método para a leitura dos dados do servidor e armazenamento no BD
         """
         try:
-            print("Persistencia iniciada")
-            self._cliente_modbus.open()
+            self._modbusClient.is_open()
             data = {}
-            while True:
-                data['timestamp'] = datetime.now()
-                for tag in self._tags_addrs:
-                    data[tag['name']] = self._cliente_modbus.read_holding_registers(tag['address'],1)[0]
-                dado = DadosCLP(**data)
-                self._lock.acquire()
-                self._session.add(dado)
-                self._session.commit()
-                self._lock.release()
-                sleep(self._scan_time)
+            data['timestamp'] = datetime.now()
+            for tag in self._tags:
+                data[tag['name']] = self._meas['values'][tag['name']]
+            dado = DadosCLP(**data)
+            self._lock.acquire()
+            self._session.add(dado)
+            self._session.commit()
+            self._lock.release()
+
+
 
         except Exception as e:
-            print("Erro na persistencia de dados: ", e.args)
+            print("Erro ao Guardar os Dados: ", e.args)
 
-    def acesso_dados_historicos(self):
+
+    def getDataDB(self):
         """
-        Método que permite ao usuário acessar dados históricos
+        Método que coleta as informações da interface fornecidas pelo usuário 
+        e requisita a busca no BD
         """
         try:
-            print("Bem vindo ao sistema de busca de dados históricos")
-            while True:
-                init = input("Digite o horário inicial para a busca (DD/MM/AAAA HH:MM:SS): ")
-                final = input("Digite o horário final para a busca (DD/MM/AAAA HH:MM:SS): ")
-                init = datetime.strptime(init,'%d/%m/%Y %H:%M:%S')
-                final = datetime.strptime(final,'%d/%m/%Y %H:%M:%S')
-                self._lock.acquire()
-                result = self._session.query(DadosCLP.timestamp.between(init,final)).all()
-                result_fmt_list = [obj.get_attr_printable_list() for obj in result]
-                self._lock.release()
+            init_t = self.parseDTString(self.ids.txt_init_time.text)
+            final_t = self.parseDTString(self.ids.txt_final_time.text)
+            cols = []
+            for sensor in self.ids.sensores.children:
+                if sensor.ids.checkbox.active:
+                    cols.append(sensor.id)
+            if init_t is None or final_t is None or len(cols) ==0 :
+                return
 
-                print(tabulate(result_fmt_list,headers=DadosCLP.__table__.columns.keys()))
+            cols.append('timestamp')
+            result = self._session.query(DadosCLP).filter(DadosCLP.timestamp.between(init_t,final_t)).all()
+
+            
+            self.ids.graph_cor.clearPlots()
+            self.ids.graph_peso.clearPlots()
+
+            result_fmt_list = [obj.get_attr_printable_list() for obj in result]
+
+            info_timestamp = []
+            info_R = []
+            info_G = []
+            info_B = []
+            info_peso = []
+            for registro in result_fmt_list:
+                info_timestamp.append(registro[1])
+                info_R.append(registro[15])
+                info_G.append(registro[16])
+                info_B.append(registro[17])
+                info_peso.append(registro[14])
+
+            plot_rgb = {'cor_obj_R':info_R,'cor_obj_G':info_G,'cor_obj_B':info_B}
+
+            for grupo,value in plot_rgb.items():
+                for tag in self._tags:
+                    if grupo == tag['name'] and grupo in cols:
+                        p = LinePlot(line_width = 1.5, color=tag['color'])
+                        p.points  = [(x,value[x]) for x in range(0,len(value))]
+                        self.ids.graph_cor.add_plot(p)
+
+            if 'peso_obj' in cols:
+                p = LinePlot(line_width = 1.5, color=(0,0,0,1))
+                p.points  = [(x,info_peso[x]) for x in range(0,len(info_peso))]
+                self.ids.graph_peso.add_plot(p)
+
+
+            self.ids.graph_cor.update_x_labels([x for x in info_timestamp])
+            self.ids.graph_peso.update_x_labels([x for x in info_timestamp])
 
         except Exception as e:
-            print("Erro na persistencia de dados: ", e.args)
+            print('Erro ao plotar a curva: ', e.args)
+    
+    def parseDTString(self,datetime_str):
+        """
+        Método que converte a string inserida pelo usuário para o formato utilizado
+        na busca dos dados no BD
+        """
+        try:
+            d = datetime.strptime(datetime_str,'%d/%m/%Y %H:%M:%S')
+            return d.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception as e:
+            print('Erro: ', e.args)
+
+       
+
+class LabeledCheckBoxHistGraph(BoxLayout):
+    pass
 
 
 

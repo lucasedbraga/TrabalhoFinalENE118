@@ -1,5 +1,5 @@
-#: kivy 1.11.1
-<DataCard>
+#:kivy 1.11.1
+<DataCard>:
     orientation: 'vertical'
     padding: '5dp'
     size_hint: None,None
@@ -20,6 +20,7 @@
         helper_text_mode: 'persistent'
         multiline: False
         on_text_validate: root.write_data()
+        on_double_tap: root.wait=True
 
 <CardInputRegister>:
     MDLabel:

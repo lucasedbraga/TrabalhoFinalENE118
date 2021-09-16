@@ -6,8 +6,8 @@
         orientation: 'vertical'
         MDToolbar:
             title: " Software SCADA: Classificador Industrial"
-            left_action_items: [["connection",lambda x: app.root.conect_button(x), "Conectar"]]
-            right_action_items: [["cog", lambda x: app.root.config_button(x), "Configurações"]]
+            right_action_items: [["connection",lambda x: app.root.conect_button(x), "Conectar"]]
+
 
         MDBottomNavigation:
             panel_color: app.theme_cls.primary_color
@@ -38,7 +38,8 @@
                         MDBoxLayout:
                             orientation: 'horizontal'
                             MDLabel:
-                                text: 'Parametro1: Valor '
+                                id: info_tensaorede
+                                text: 'Tensão Rede: Desligado '
                                 text_color: 0,0,0,1
                                 bold: True
                                 halign: 'left'
@@ -46,7 +47,8 @@
                         MDBoxLayout:
                             orientation: 'horizontal'
                             MDLabel:
-                                text: 'Vel.Rampa: vel_ramp.text  '
+                                id: info_velramp
+                                text: 'Vel.Esteira: Desligado  '
                                 text_color: 0,0,0,1
                                 bold: True
                                 halign: 'left'
@@ -216,8 +218,7 @@
                         padding: 0.11*Window.width, "130dp"
                         spacing: 0.02*Window.width
                         adaptive_height: True
-                        on_release:
-                            root._graph.open()
+                    
 
             MDBottomNavigationItem:
                 name: 'Dados Históricos'
@@ -227,10 +228,80 @@
                     orientation: 'vertical'
                     padding: '20dp'
                     spacing: '50dp'
+                    TimeSeriesGraph:
+                        id: graph_cor
+                        xlabel: 'Horário'
+                        ylabel: 'Cor RGB'
+                        background_color: 0.8,0.8,0.8,0.8
+                        x_ticks_minor: 1
+                        x_ticks_major: 5
+                        y_ticks_major: 255
+                        y_grid_label: True
+                        x_grid_label: True
+                        padding: 1
+                        x_grid: True
+                        y_grid: True
+                        xmin: 0
+                        ymin: 0
+                        ymax: 300
+
+                    TimeSeriesGraph:
+                        id: graph_peso
+                        size_hint: (1,1.5)
+                        xlabel: 'Horário'
+                        ylabel: 'Peso'
+                        background_color: 0.8,0.8,0.8,0.8
+                        x_ticks_minor: 0
+                        x_ticks_major: 5
+                        y_ticks_major: 5
+                        y_grid_label: True
+                        x_grid_label: True
+                        padding: 1
+                        x_grid: True
+                        y_grid: True
+                        xmin: 0
+                        ymin: 0
+                        ymax: 15
+                    BoxLayout:
+                        id: sensores
+                        orientation: 'horizontal'
+                        size_hint: (1,0.05)
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        size_hint: (1,0.15)
+                        Label:
+                            text: '[color=#000000]  Timestamp inicial \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size] [/color]' 
+                            halign: 'center'
+                            markup: True
+                        TextInput:
+                            id: txt_init_time
+                            size_hint: (1,2.1)
+                            halign: 'center'
+                            valign: 'middle'
+                            multiline: False
+                        Label:
+                            text: '[color=#000000] Timestamp final \r\n [size=12] (DD/MM/AAAA HH:MM:SS) [/size] [/color]' 
+                            halign: 'center'
+                            markup: True
+                        TextInput:
+                            id: txt_final_time
+                            size_hint: (1,2.1)
+                            halign: 'center'
+                            valign: 'middle'
+                            multiline: False
 
 
-
-
+<LabeledCheckBoxHistGraph>:
+    orientation: 'horizontal'
+    size_hint: (0.05,0.7)
+    CheckBox:
+        id: checkbox
+        color: (0,0,0,1)
+        on_active: app.root.getDataDB()
+    Label:
+        id: label
+        font_size: 12
+        bold: True
 
 
 

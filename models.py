@@ -1,6 +1,5 @@
-from sqlalchemy.sql.sqltypes import Boolean
 from db import Base
-from sqlalchemy import Column, Integer, DateTime, Float
+from sqlalchemy import Column, Integer, DateTime, Float, Boolean
 
 
 class DadosCLP(Base):
@@ -10,9 +9,9 @@ class DadosCLP(Base):
     __tablename__ = 'dadosclp'
     id = Column(Integer, primary_key=True, autoincrement=True)
     timestamp = Column(DateTime)
-    estado_atuador = Column(Integer)
-    bt_Desliga_Liga = Column(Integer)
-    t_part = Column(float)
+    estado_atuador = Column(Boolean)
+    bt_Desliga_Liga = Column(Boolean)
+    t_part = Column(Float)
     freq_des = Column(Float)
     freq_mot = Column(Float)
     tensao = Column(Float)
@@ -30,9 +29,9 @@ class DadosCLP(Base):
     numObj_est_2 = Column(Integer)
     numObj_est_3 = Column(Integer)
     numObj_est_nc = Column(Integer)
-    filtro_est_1 = Column(Integer)
-    filtro_est_2 = Column(Integer)
-    filtro_est_3 = Column(Integer)
+    filtro_est_1 = Column(Boolean)
+    filtro_est_2 = Column(Boolean)
+    filtro_est_3 = Column(Boolean)
     filtro_cor_r_1 = Column(Integer)
     filtro_cor_g_1 = Column(Integer)
     filtro_cor_b_1 = Column(Integer)
@@ -48,7 +47,7 @@ class DadosCLP(Base):
 
     def get_attr_printable_list(self):
         return [self.id,
-                self.timestamp.strftime('%d/%m/%Y %H:%M:%S.%f'),
+                self.timestamp,
                 self.estado_atuador,
                 self.bt_Desliga_Liga,
                 self.t_part,
